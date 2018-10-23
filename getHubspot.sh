@@ -1,11 +1,18 @@
 #!/bin/bash
-# GET request to contacts API (250 Contacts/request) & Pipe JSON to file contactlist.txt
+#GET request to contacts API (250 Contacts/request) & Pipe JSON to file contactlist.txt
 #slyons-interlaced-2018
-curl https://api.hubapi.com/contacts/v1/lists/all/contacts/all\?hapikey\=c5c5658b-73a6-40d0-bcb5-8f5eb72ea7a1\&count\=100 > contacts.txt
+
+# Insert API key Her
+ApiKey="<Insert API Key Here>"
+
+#Uncomment the next line if doing repeated testing
+#rm -rf *.txt
+
+curl https://api.hubapi.com/contacts/v1/lists/all/contacts/all\?hapikey\=$ApiKey\&count\=100 > contacts.txt
 # Trimming JSON file to only include Firstname / Lastname and piping accordingly to file
 cat contacts.txt |tr , '\n'|grep firstname|cut -c37-|rev|cut -c 3-|rev > firstnames.txt
 cat contacts.txt |tr , '\n'|grep lastname|cut -c22-|rev|cut -c 4-|rev > lastnames.txt
-## Add whatever interlace wants here -- Phone Number -- Organization --
+## Add whatever interlace wants here -- Phone Number -- Organization -- ##
 
 #Create offset variable
 offset=(`tail contacts.txt|tr , '\n'|grep vid-offset|sed 's/[^0-9]*//g'`)
@@ -19,6 +26,7 @@ done < firstnames.txt
 while read line; do
   array2+=("$line")
 done < lastnames.txt
+#Add array here if expanding return values
 
 #call corresponding array value (firstname lastname)
 paste <(printf "%s\n" "${array1[@]}") <(printf "%s\n" "${array2[@]}") > contacts.txt
@@ -36,11 +44,11 @@ offset=(`cat offset.txt`)
 
 ## Loop the logic so long as offset contains value -- remember to duplicate here dummy
 while  [ "$offset" -gt "1" ]; do
-  curl https://api.hubapi.com/contacts/v1/lists/all/contacts/all\?hapikey\=c5c5658b-73a6-40d0-bcb5-8f5eb72ea7a1\&count=250\&vidOffset=$offset > contacts.txt
+  curl https://api.hubapi.com/contacts/v1/lists/all/contacts/all\?hapikey\=$ApiKey\&count=250\&vidOffset=$offset > contacts.txt
   # Trimming JSON file to only include Firstname / Lastname and piping accordingly to file
   cat contacts.txt |tr , '\n'|grep firstname|cut -c37-|rev|cut -c 3-|rev > firstnames.txt
   cat contacts.txt |tr , '\n'|grep lastname|cut -c22-|rev|cut -c 4-|rev > lastnames.txt
-  ## Add whatever filter here -- Phone Number -- Organization --
+  ## Add logic from line 10
 
   #Create offset variable
   offset=(`tail contacts.txt|tr , '\n'|grep vid-offset|sed 's/[^0-9]*//g'`)
@@ -54,6 +62,7 @@ while  [ "$offset" -gt "1" ]; do
   while read line; do
     array2+=("$line")
   done < lastnames.txt
+  # Add array from line 24
 
   #call corresponding array value (firstname lastname)
   paste <(printf "%s\n" "${array1[@]}") <(printf "%s\n" "${array2[@]}") > contacts.txt
