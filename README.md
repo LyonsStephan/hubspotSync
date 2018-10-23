@@ -17,3 +17,6 @@ Line 8:  Continue to trim through JSON output to find value.
 Line 22: Create Array for value added to Line 8.
 Line 37: Duplicate logic from above into the loop.
 #########
+
+10/22/2018 - Merged into Master.
+#########
